@@ -15,7 +15,7 @@
                     <div class="input-group">
                         <span class="input-group-text">@</span>
                         <input type="text" v-model="form.username" class="form-control" id="account" placeholder="请输入账号"
-                            required :class="{ 'is-invalid': usernameError }" />
+                            required :class="{ 'is-invalid': usernameError }" @keydown.enter="submit" />
                         <div class="invalid-feedback" v-if="usernameError">
                             账号不能为空
                         </div>
@@ -29,7 +29,7 @@
                     <div class="input-group">
                         <span class="input-group-text">🔒</span>
                         <input type="password" v-model="form.password" class="form-control" id="password"
-                            placeholder="请输入密码" required :class="{ 'is-invalid': passwordError }" />
+                            placeholder="请输入密码" required :class="{ 'is-invalid': passwordError }" @keydown.enter="submit" />
                         <div class="invalid-feedback" v-if="passwordError">
                             密码不能为空
                         </div>
@@ -77,6 +77,7 @@ const submit = () => {
     if (usernameError.value || passwordError.value) {
         return
     }
+
     proxy.$api.login(form.value).then(res => {
         if (res.code == 20000) {
             userStore.setToken(res.data)
@@ -85,6 +86,8 @@ const submit = () => {
     })
 
 }
+
+
 
 const chooseRole = (i) => {
     curIndex.value = i

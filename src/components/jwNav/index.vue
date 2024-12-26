@@ -9,11 +9,21 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item" v-for="item in navList">
-                        <router-link class="nav-link active" aria-current="page" :to="item.url">
+                        <router-link class="nav-link" :class="{ active: route.path == item.url }" aria-current="page"
+                            :to="item.url">
                             {{ item.name }}
                         </router-link>
                     </li>
-
+                </ul>
+            </div>
+            <!-- 用户信息和退出登录 -->
+            <div class="dropdown ms-auto" style="padding: 0 30px;" v-if="userStore.isLoggedIn">
+                <span class="dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    Hi~, {{ userStore.username }}
+                </span>
+                <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="#" @click="userStore.logout()">退出登录</a></li>
                 </ul>
             </div>
         </div>
@@ -24,6 +34,8 @@
 </template>
 <script setup>
 
+import { useUserStore } from '../../store/modules/user';
+const userStore = useUserStore()
 const navList = ref([
     {
         name: "课程列表",
@@ -44,6 +56,10 @@ const navList = ref([
     {
         name: "个人信息",
         url: "/myInfo",
+    },
+    {
+        name: "用户列表",
+        url: '/users'
     }
 ])
 import { useRoute } from 'vue-router'
@@ -52,6 +68,8 @@ const isShow = computed(() => {
     console.log('route.name', route.name == 'login')
     return !(route.name == 'login' || route.name == 'register' || route.name == '404page')
 })
+
+
 </script>
 <style>
 .el-row {
@@ -69,5 +87,9 @@ const isShow = computed(() => {
 .grid-content {
     border-radius: 4px;
     min-height: 36px;
+}
+
+.active {
+    /* border-bottom: 2px solid black !important; */
 }
 </style>

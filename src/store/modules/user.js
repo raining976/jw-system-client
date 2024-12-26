@@ -1,4 +1,6 @@
 // @/store/modules/user.js
+import { getMyInfo } from "@/api";
+import router from "@/router"
 
 export const useUserStore = defineStore({
     id: "User",
@@ -10,13 +12,27 @@ export const useUserStore = defineStore({
             password: "admin",
             role: '',
         },
-        userInfo:{
-            
-        }
+        studentInfo: {},
+        teacherInfo:{}
     }),
     getters: {
         isLoggedIn() {
             return this.token == null ? false : true;
+        },
+        username() {
+            return this.accountInfo.username
+        },
+        role() {
+            return this.accountInfo.role
+        },
+        userInfo(){
+            if(this.accountInfo.role == 'student'){
+                return this.studentInfo
+            }else if(this.accountInfo.role == 'teacher'){
+                return this.teacherInfo
+            }else{
+                return this.accountInfo
+            }
         }
     },
     actions: {
@@ -25,18 +41,37 @@ export const useUserStore = defineStore({
         },
         setToken(val) {
             this.token = val
+            this.getInfo()
         },
         setUserInfo(data) {
             this.userInfo = reactive(data)
         },
         logout() {
             this.token = null
-            router.replace('/')
+            router.push('/login')
+        },
+        setUsername(v){
+            this.accountInfo.username = v
+        },
+        setRole(v){
+            this.accountInfo.role = v
+        },
+        getInfo() {
+            getMyInfo().then(res=>{
+                this.setUsername(res.data.username)
+                this.setRole(res.data.role)
+                if(res.data.role == 'student'){
+                    this.studentInfo = res.data
+                }else if(res.data.role == 'teacher'){
+                    this.teacherInfo = res.data
+                }
+               
+            })
         }
     },
     // 数据持久化
     persist: {
-        key: "user", 
+        key: "user",
         storage: localStorage,
     },
 });

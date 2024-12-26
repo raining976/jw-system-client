@@ -54,6 +54,33 @@ const routes = [
         }
     },
     {
+        path: '/users',
+        redirect: "/students",
+        component: () => import('@/views/userListView/index.vue'),
+        meta: {
+            requireAuth: true,
+            title: "用户列表"
+        },
+        children: [
+            {
+                path: '/teachers',
+                component: () => import('@/views/userListView/components/teacher.vue'),
+                meta: {
+                    requireAuth: true,
+                    title: "老师列表"
+                },
+            },
+            {
+                path: '/students',
+                component: () => import('@/views/userListView/components/student.vue'),
+                meta: {
+                    requireAuth: true,
+                    title: "学生列表"
+                },
+            },
+        ]
+    },
+    {
         path: '/auth',
         redirect: '/login',
         component: () => import('@/views/authView/index.vue'),
@@ -100,7 +127,7 @@ const router = createRouter({
 // 路由前置守卫 主要用来进行鉴权
 router.beforeEach((to, from, next) => {
     const userStore = useUserStore()
-    if (to.meta.requireAuth  && !userStore.isLoggedIn) {
+    if (to.meta.requireAuth && !userStore.isLoggedIn) {
         router.push('/login')
     }
     next()
