@@ -8,8 +8,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item" v-for="item in navList">
-                        <router-link class="nav-link" :class="{ active: route.path == item.url }" aria-current="page"
+                    <li class="nav-item" v-for="item in filteredNavList" :key="item.url">
+                        <router-link class="nav-link" :class="{ active: route.path === item.url }" aria-current="page"
                             :to="item.url">
                             {{ item.name }}
                         </router-link>
@@ -36,32 +36,52 @@
 
 import { useUserStore } from '../../store/modules/user';
 const userStore = useUserStore()
+// 用户角色（可以从用户信息中获取，示例中使用固定值）
+const role = ref('student'); // student, teacher, admin
+
+// 导航项列表，包含哪些角色能看到该项
 const navList = ref([
     {
-        name: "课程列表",
-        url: "/courseList",
+        name: '选课列表', // 老师不显示
+        url: '/scourse',
+        roles: ['teacher', 'admin', 'student'] // 设定哪些角色可以看到
     },
     {
-        name: "我的课程",
-        url: "/myCourse",
+        name: '我的课程', // 对学生：当前选的课和成绩 对老师不显示
+        url: '/myCourse',
+        roles: ['student', 'admin']
     },
     {
-        name: "我的成绩",
-        url: "/score",
+        name: '我的班级', // 对老师，当前选择他班级的学生，对学生不显示
+        url: '/myClass',
+        roles: ['teacher', 'admin']
     },
     {
-        name: "我的通知",
-        url: "/notice"
+        name: '个人信息', // 都显示
+        url: '/myInfo',
+        roles: ['student', 'teacher', 'admin']
     },
     {
-        name: "个人信息",
-        url: "/myInfo",
+        name: '我的通知', // 对老师和学生和管理员同时显示，表示当前调课通知
+        url: '/notice',
+        roles: ['student', 'teacher', 'admin']
     },
     {
-        name: "用户列表",
-        url: '/users'
+        name: '课程列表', // 只对管理员显示
+        url: '/courseList',
+        roles: ['admin']
+    },
+    {
+        name: '用户列表', // 只对管理员显示
+        url: '/users',
+        roles: ['admin']
     }
-])
+]);
+
+// 计算属性：过滤出当前角色可以访问的导航项
+const filteredNavList = computed(() => {
+    return navList.value.filter(item => item.roles.includes(userStore.role));
+});
 import { useRoute } from 'vue-router'
 const route = useRoute()
 const isShow = computed(() => {

@@ -30,11 +30,11 @@ const routes = [
         }
     },
     {
-        path: '/score',
-        component: () => import('@/views/scoreView/index.vue'),
+        path: '/myClass',
+        component: () => import('@/views/ClassView/index.vue'),
         meta: {
             requireAuth: true,
-            title: "我的成绩"
+            title: "我的班级"
         }
     },
     {
@@ -51,6 +51,14 @@ const routes = [
         meta: {
             requireAuth: true,
             title: "我的通知"
+        }
+    },
+    {
+        path: '/scourse',
+        component: () => import('@/views/sCourseListView/index.vue'),
+        meta: {
+            requireAuth: true,
+            title: "选课列表"
         }
     },
     {
