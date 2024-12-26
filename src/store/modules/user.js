@@ -12,9 +12,8 @@ export const useUserStore = defineStore({
             password: "admin",
             role: '',
         },
-        userInfo: {
-
-        }
+        studentInfo: {},
+        teacherInfo:{}
     }),
     getters: {
         isLoggedIn() {
@@ -25,6 +24,15 @@ export const useUserStore = defineStore({
         },
         role() {
             return this.accountInfo.role
+        },
+        userInfo(){
+            if(this.accountInfo.role == 'student'){
+                return this.studentInfo
+            }else if(this.accountInfo.role == 'teacher'){
+                return this.teacherInfo
+            }else{
+                return this.accountInfo
+            }
         }
     },
     actions: {
@@ -52,6 +60,12 @@ export const useUserStore = defineStore({
             getMyInfo().then(res=>{
                 this.setUsername(res.data.username)
                 this.setRole(res.data.role)
+                if(res.data.role == 'student'){
+                    this.studentInfo = res.data
+                }else if(res.data.role == 'teacher'){
+                    this.teacherInfo = res.data
+                }
+               
             })
         }
     },

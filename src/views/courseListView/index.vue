@@ -24,6 +24,8 @@
 import { ref } from "vue";
 import { errorNotice } from "../../utils/notice";
 
+
+
 // 搜索条件
 const searchValue = ref('')
 const courses = ref([]);

@@ -1,8 +1,4 @@
 <script setup>
-import { ref } from 'vue'
-import { useUserStore } from "@/store"
-
-const userStore = useUserStore()
 
 </script>
 
