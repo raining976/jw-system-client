@@ -13,7 +13,6 @@ const userStore = useUserStore()
       </el-header>
       <el-main class="mainContainer"><router-view></router-view></el-main>
     </el-container>
-
 </template>
 
 <style scoped>

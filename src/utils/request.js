@@ -4,7 +4,7 @@ import { useUserStore } from '@/store'
 import router from "@/router"
 
 const request = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
     timeout: 5000,
 })
 
@@ -23,12 +23,15 @@ request.interceptors.request.use((config) => {
 
 // 响应拦截 
 request.interceptors.response.use((response) => {
-
+    if(response.data.code == 60002 || response.data.code == 60001){
+        errorNotice(response.data.msg)
+        const userStore = useUserStore()
+        userStore.logout()
+    }
     return response.data
 }, (error) => {
     console.error('error', error)
     let msg = ''
-
     // errorNotice(msg)
     return Promise.reject(error);
 })

@@ -1,4 +1,6 @@
 // @/store/modules/user.js
+import { getMyInfo } from "@/api";
+import router from "@/router"
 
 export const useUserStore = defineStore({
     id: "User",
@@ -10,13 +12,19 @@ export const useUserStore = defineStore({
             password: "admin",
             role: '',
         },
-        userInfo:{
-            
+        userInfo: {
+
         }
     }),
     getters: {
         isLoggedIn() {
             return this.token == null ? false : true;
+        },
+        username() {
+            return this.accountInfo.username
+        },
+        role() {
+            return this.accountInfo.role
         }
     },
     actions: {
@@ -25,18 +33,31 @@ export const useUserStore = defineStore({
         },
         setToken(val) {
             this.token = val
+            this.getInfo()
         },
         setUserInfo(data) {
             this.userInfo = reactive(data)
         },
         logout() {
             this.token = null
-            router.replace('/')
+            router.push('/login')
+        },
+        setUsername(v){
+            this.accountInfo.username = v
+        },
+        setRole(v){
+            this.accountInfo.role = v
+        },
+        getInfo() {
+            getMyInfo().then(res=>{
+                this.setUsername(res.data.username)
+                this.setRole(res.data.role)
+            })
         }
     },
     // 数据持久化
     persist: {
-        key: "user", 
+        key: "user",
         storage: localStorage,
     },
 });
