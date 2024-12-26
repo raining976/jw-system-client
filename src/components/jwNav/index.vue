@@ -44,7 +44,7 @@ const navList = ref([
     {
         name: '选课列表', // 老师不显示
         url: '/scourse',
-        roles: ['teacher', 'admin', 'student'] // 设定哪些角色可以看到
+        roles: ['admin', 'student'] // 设定哪些角色可以看到
     },
     {
         name: '我的课程', // 对学生：当前选的课和成绩 对老师不显示
@@ -85,7 +85,6 @@ const filteredNavList = computed(() => {
 import { useRoute } from 'vue-router'
 const route = useRoute()
 const isShow = computed(() => {
-    console.log('route.name', route.name == 'login')
     return !(route.name == 'login' || route.name == 'register' || route.name == '404page')
 })
 

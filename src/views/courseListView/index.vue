@@ -24,7 +24,11 @@
 import { ref } from "vue";
 import { errorNotice } from "../../utils/notice";
 
+import { useUserStore } from "@/store"
 
+const userStore = useUserStore()
+
+userStore.userInfo
 
 // 搜索条件
 const searchValue = ref('')
