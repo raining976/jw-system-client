@@ -13,28 +13,20 @@
     <div class="d-flex justify-content-left my-2 select-box" v-if="userStore.isAdmin">
         <!-- 选择课程、老师和上课天、上课时间来创建课程 -->
         <!-- 选择课程 -->
-        <div class="mb-3 row">
-            <div class="col-sm-12">
-                <select id="course" class="form-select" v-model="selectedCourse">
-                    <option v-for="course in courses" :key="course.id" :value="course.id">{{ course.name }}</option>
-                </select>
-            </div>
+        <div class="container mt-3">
+            <el-autocomplete v-model="course_name" :fetch-suggestions="courseSearchAsync" placeholder="输入课程搜索"
+                @select="selectCourses" value-key="course_name" />
         </div>
-
         <!-- 选择老师 -->
-        <div class="mb-3 row">
-            <div class="col-sm-12">
-                <select id="teacher" class="form-select" v-model="selectedTeacher">
-                    <option v-for="teacher in teachers" :key="teacher.id" :value="teacher.id">{{ teacher.name }}
-                    </option>
-                </select>
-            </div>
+        <div class="container mt-3">
+            <el-autocomplete v-model="teacher_name" :fetch-suggestions="teacherSearchAsync" placeholder="输入老师搜索"
+                @select="selectTeachers" value-key="name" />
         </div>
 
         <!-- 选择上课天 -->
-        <div class="mb-3 row">
+        <div class="container mt-3">
             <div class="col-sm-12">
-                <select id="day" class="form-select" v-model="selectedDay">
+                <select id="day" class="form-select" v-model="createForm.day">
                     <option selected value="">选择上课天</option>
                     <option value="周一">周一</option>
                     <option value="周二">周二</option>
@@ -46,9 +38,10 @@
         </div>
 
         <!-- 选择上课时间 -->
-        <div class="mb-3 row">
+        <div class="container mt-3">
             <div class="col-sm-12">
-                <select id="time" class="form-select" v-model="selectedTime">
+                <select id="time" class="form-select" v-model="createForm.time">
+                    <option value="">选择上课时间</option>
                     <option value="1">上午 1-2节</option>
                     <option value="2">上午 3-4节</option>
                     <option value="3">下午 5-6节</option>
@@ -56,37 +49,75 @@
                 </select>
             </div>
         </div>
-        <div class="mb-3 row" style="width: 100px;">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                添加课程
+        <div class="container mt-3" style="width: 120px;">
+            <button type="button" class="btn btn-primary" 
+                @click="createSCourse">
+                添加选课
             </button>
         </div>
     </div>
     <div>
         <myTable :data="scourses" :columns="columns" :current-page="currentPage" :total-pages="totalPages"
-            @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" :selectable="userStore.isAdmin" :editable="userStore.isAdmin" :deletable="userStore.isAdmin"
-            @delete-selected="handleDeleteSelected" />
+            @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" :selectable="userStore.isAdmin"
+            :editable="false" :deletable="userStore.isAdmin" @delete-selected="handleDeleteSelected" />
     </div>
 
 </template>
 
 <script setup>
-
-import { ref } from "vue";
+import { getCurrentInstance, ref } from "vue";
 import { errorNotice } from "../../utils/notice";
 
 import { useUserStore } from "@/store";
 const userStore = useUserStore()
+const { proxy } = getCurrentInstance()
 
 // 模拟后端数据（课程和老师）
 const courses = ref([]);
 const teachers = ref([]);
+// 添加选课的选项
+const createForm = ref({
+    course_id: '',
+    teacher_id: '',
+    day: "",
+    time: '',
+})
+const course_name = ref("")
+const teacher_name = ref("")
 
-// 选择的课程、老师、上课天、上课时间
-const selectedCourse = ref(null);
-const selectedTeacher = ref(null);
-const selectedDay = ref(null);
-const selectedTime = ref(null);
+// 选择搜索结果
+const selectCourses = (v) => {
+    createForm.value.course_id = v.course_id
+}
+
+const selectTeachers = (v) => {
+    createForm.value.teacher_id = v.teacher_id
+
+}
+
+const courseSearchAsync = (queryString, cb) => {
+    proxy.$api.findCourse({ keyword: queryString }).then(res => {
+        if (res.code == 20000) {
+            cb(res.data.data)
+        }
+    }).catch(e => {
+        cb([])
+    })
+}
+
+const teacherSearchAsync = (queryString, cb) => {
+    proxy.$api.getUserAll({ role: 'teacher', keyword: queryString }).then(res => {
+        console.log('res', res)
+        if (res.code == 20000) {
+            cb(res.data.data)
+        }
+    }).catch(e => {
+        cb([])
+    })
+}
+
+
+
 
 
 
@@ -107,7 +138,7 @@ const columns = ref([
 ]);
 
 const handleDelete = async (row) => {
-    await proxy.$api.deleteCourses({ ids: [row.scourse_id] })
+    await proxy.$api.deleteSCourses({ ids: [row.scourse_id] })
     fetchSCourses()
 };
 
@@ -131,7 +162,7 @@ const handlePageChange = (page) => {
     fetchSCourses(); // 调用后端接口获取数据
 };
 const pageSize = ref(8)
-const { proxy } = getCurrentInstance()
+
 
 const fetchSCourses = async () => {
     // 调用后端分页接口
@@ -150,6 +181,14 @@ const fetchSCourses = async () => {
 
     })
 };
+
+const createSCourse = async () => {
+    const isFormValid = Object.values(createForm.value).every(value => value !== '');
+    if (isFormValid) {
+        await proxy.$api.createSCourse(createForm.value)
+        fetchSCourses()
+    }
+}
 
 onMounted(() => {
     fetchSCourses()
@@ -172,7 +211,8 @@ onMounted(() => {
 
 <style scoped>
 .select-box>div {
-    width: 150px;
+    width: 180px;
     margin: 0 5px;
+    height: 40px;
 }
 </style>
