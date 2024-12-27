@@ -58,8 +58,8 @@
     </div>
     <div>
         <myTable :data="scourses" :columns="columns" :current-page="currentPage" :total-pages="totalPages"
-            @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" :selectable="userStore.isAdmin"
-            :editable="false" :deletable="userStore.isAdmin" @delete-selected="handleDeleteSelected" />
+            @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" @choose="handleChoose" :selectable="userStore.isAdmin"
+            :editable="false" :isStudent="userStore.isStudent" :deletable="userStore.isAdmin" @delete-selected="handleDeleteSelected" />
     </div>
 
 </template>
@@ -148,7 +148,7 @@ const handleEdit = (row) => {
 
 const handleDeleteSelected = async (selectedItems) => {
     const ids = selectedItems.map((item) => item.scourse_id);
-    // await proxy.$api.deleteCourses({ ids })
+    await proxy.$api.deleteSCourses({ ids })
     fetchSCourses()
 };
 
@@ -206,6 +206,11 @@ onMounted(() => {
         { id: 3, name: '王老师' }
     ];
 })
+
+// 学生选课
+const handleChoose = (row) =>{
+    alert(row.course_name, row.teacher_name)
+}
 
 </script>
 

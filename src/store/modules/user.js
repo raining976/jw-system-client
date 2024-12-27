@@ -28,6 +28,9 @@ export const useUserStore = defineStore({
         isAdmin() {
             return this.accountInfo.role == 'admin'
         },
+        isStudent(){
+            return this.accountInfo.role == 'student'
+        },
         userInfo() {
             if (this.accountInfo.role == 'student') {
                 return this.studentInfo
