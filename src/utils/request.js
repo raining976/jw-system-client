@@ -23,7 +23,7 @@ request.interceptors.request.use((config) => {
 
 // 响应拦截 
 request.interceptors.response.use((response) => {
-    if(response.data.code == 60002 || response.data.code == 60001){
+    if (response.data.code == 60002 || response.data.code == 60001) {
         errorNotice(response.data.msg)
         const userStore = useUserStore()
         userStore.logout()
@@ -36,11 +36,14 @@ request.interceptors.response.use((response) => {
     return Promise.reject(error);
 })
 
+function isSuccess(v) {
+    return (/^2\d{4}$/.test(v))
+}
 function get(url, params, isNotice = true) {
     return request.get(url, { params }).then(res => {
-        if (isNotice && res.code == 20000) {
+        if (isNotice && isSuccess(res.code)) {
             successNotice(res.msg)
-        } else if (isNotice && res.code != 20000) {
+        } else if (isNotice) {
             errorNotice(res.msg)
         }
         return res
@@ -49,9 +52,9 @@ function get(url, params, isNotice = true) {
 function post(url, data, isNotice = true) {
     return request.post(url, data).then(res => {
         // console.log('test', isNotice)
-        if (isNotice && res.code == 20000) {
+        if (isNotice && isSuccess(res.code)) {
             successNotice(res.msg)
-        } else if (isNotice && res.code !=20000) {
+        } else if (isNotice) {
             errorNotice(res.msg)
         }
         return res

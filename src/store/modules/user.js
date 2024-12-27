@@ -13,7 +13,7 @@ export const useUserStore = defineStore({
             role: '',
         },
         studentInfo: {},
-        teacherInfo:{}
+        teacherInfo: {}
     }),
     getters: {
         isLoggedIn() {
@@ -25,12 +25,18 @@ export const useUserStore = defineStore({
         role() {
             return this.accountInfo.role
         },
-        userInfo(){
-            if(this.accountInfo.role == 'student'){
+        isAdmin() {
+            return this.accountInfo.role == 'admin'
+        },
+        isStudent(){
+            return this.accountInfo.role == 'student'
+        },
+        userInfo() {
+            if (this.accountInfo.role == 'student') {
                 return this.studentInfo
-            }else if(this.accountInfo.role == 'teacher'){
+            } else if (this.accountInfo.role == 'teacher') {
                 return this.teacherInfo
-            }else{
+            } else {
                 return this.accountInfo
             }
         }
@@ -50,22 +56,22 @@ export const useUserStore = defineStore({
             this.token = null
             router.push('/login')
         },
-        setUsername(v){
+        setUsername(v) {
             this.accountInfo.username = v
         },
-        setRole(v){
+        setRole(v) {
             this.accountInfo.role = v
         },
         getInfo() {
-            getMyInfo().then(res=>{
+            getMyInfo().then(res => {
                 this.setUsername(res.data.username)
                 this.setRole(res.data.role)
-                if(res.data.role == 'student'){
+                if (res.data.role == 'student') {
                     this.studentInfo = res.data
-                }else if(res.data.role == 'teacher'){
+                } else if (res.data.role == 'teacher') {
                     this.teacherInfo = res.data
                 }
-               
+
             })
         }
     },
