@@ -18,8 +18,7 @@
             @delete-selected="handleDeleteSelected" />
     </div>
     <common-form-dialog v-model:visible="dialogVisible" title="课程信息" :fields="formFields" :modelValue="form"
-        :isEdit="isEdit" @submit="handleSubmit" @update:visible="updateVisible" @close="closeDialog"
-        :rules="rules"  />
+        :isEdit="isEdit" @submit="handleSubmit" @update:visible="updateVisible" @close="closeDialog" :rules="rules" />
 
 
 </template>
@@ -105,6 +104,27 @@ const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formFields = ref([
     { label: "课程名称", prop: "course_name", type: "el-input" },
+    // {
+    //     label: "性别",
+    //     prop: "gender",
+    //     type: "el-select",
+    //     attrs: {
+    //         options: [
+    //             {
+    //                 label:"男",
+    //                 value:"男",
+    //             },
+    //             {
+    //                 label:"女",
+    //                 value:"女",
+    //             },
+    //             {
+    //                 label:"保密",
+    //                 value:"保密",
+    //             },
+    //         ]
+    //     }
+    // },
     {
         label: "课程描述",
         prop: "description",
@@ -120,7 +140,7 @@ const emptyForm = ref({ // 空表 用来恢复form
     description: ""
 })
 
-const form = ref({ 
+const form = ref({
     course_id: '',
     course_name: "",
     description: ""
@@ -129,6 +149,7 @@ const form = ref({
 const rules = ref({
     course_name: [{ required: true, message: "课程名称不能为空", trigger: "blur" }],
     description: [{ required: true, message: "课程描述不能为空", trigger: "blur" }],
+    // gender:[{ required: true, message: "性别不为空", trigger: "blur" }],
 });
 
 const handleSubmit = (form) => {
@@ -136,17 +157,17 @@ const handleSubmit = (form) => {
 }
 
 
-const createCourse = async(form) =>{
-    const {course_name, description} = form
-    await  proxy.$api.createCourse({course_name, description}).then(res=>{
+const createCourse = async (form) => {
+    const { course_name, description } = form
+    await proxy.$api.createCourse({ course_name, description }).then(res => {
         fetchCourses()
     })
 
 }
 
-const updateCourse = async(form) =>{
-    const {course_id, description, course_name} = form
-    await proxy.$api.updateCourse({course_id, description, course_name}).then(res=>{
+const updateCourse = async (form) => {
+    const { course_id, description, course_name } = form
+    await proxy.$api.updateCourse({ course_id, description, course_name }).then(res => {
         fetchCourses()
     })
 
@@ -156,8 +177,8 @@ const updateVisible = (v) => {
     dialogVisible.value = v
 }
 
-const closeDialog = ()=>{
+const closeDialog = () => {
     dialogVisible.value = false
-    form.value = {...emptyForm.value}
+    form.value = { ...emptyForm.value }
 }
 </script>
