@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(row,index) in data" :key="index">
+                <tr v-for="(row, index) in data" :key="index">
                     <td v-if="selectable">
                         <input type="checkbox" v-model="selectedItems" :value="row">
                     </td>
@@ -21,9 +21,14 @@
                         <button v-if="editable" class="btn btn-warning me-2" @click="$emit('edit', row)">
                             编辑
                         </button>
-                        <button v-if="deletable" class="btn btn-danger" @click="$emit('delete', row)">
-                            删除
-                        </button>
+                        <el-popconfirm title="确定删除?" @confirm="$emit('delete', row)">
+                            <template #reference>
+                                <button v-if="deletable" class="btn btn-danger" >
+                                    删除
+                                </button>
+                            </template>
+                        </el-popconfirm>
+
                     </td>
                 </tr>
             </tbody>
@@ -88,12 +93,12 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    totalPages:{
-        type:Number,
+    totalPages: {
+        type: Number,
         default: 1,
     },
     currentPage: {
-        type:Number,
+        type: Number,
         default: 1,
     }
 })
@@ -110,7 +115,7 @@ const toggleSelectAll = () => {
     }
 };
 
-const emit = defineEmits(['delete-selected','edit','delete','change-page'])
+const emit = defineEmits(['delete-selected', 'edit', 'delete', 'change-page'])
 const deleteSelected = () => {
     emit("delete-selected", selectedItems.value);
     selectedItems.value = [];
