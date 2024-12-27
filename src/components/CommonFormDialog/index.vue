@@ -4,7 +4,8 @@
     <el-form :model="form" :rules="rules" ref="formRef">
       <el-form-item v-for="(item, index) in fields" :key="index" :label="item.label" :prop="item.prop"
         :label-width="item.labelWidth || labelWidth">
-        <el-input v-if="item.type == 'el-input'" v-model="form[item.prop]" @keydown.enter="submit"></el-input>
+        <el-input v-if="item.type == 'el-input'" v-model="form[item.prop]" @keydown.enter="submit"
+          :disabled="item.disabled && isEdit"></el-input>
         <el-select v-else v-model="form[item.prop]">
           <el-option v-for="option in item.attrs?.options" :key="option.value" :label="option.label"
             :value="option.value" />
