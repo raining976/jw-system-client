@@ -9,9 +9,12 @@
         </div>
     </div>
     <myTable :data="tableData" :columns="columns" :current-page="currentPage" :total-pages="totalPages"
-        @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" :selectable="userStore.isAdmin"
+        @change-page="handlePageChange" @adjust="handleAdjust" @delete="handleDelete" :selectable="userStore.isAdmin"
         :isTeacher="userStore.isTeacher" :editable="userStore.isAdmin" :deletable="userStore.isAdmin"
-        @delete-selected="handleDeleteSelected" @detail="handleDetail" :isDetail="true" />
+        @delete-selected="handleDeleteSelected" @detail="handleDetail" :isDetail="true"  :isChange="userStore.isTeacher"/>
+
+    <common-form-dialog v-model:visible="dialogVisible" title="调课申请" :fields="formFields" :modelValue="form"
+        :isEdit="true" @submit="handleSubmit" @update:visible="updateVisible" @close="closeDialog" :rules="rules" />
 </template>
 
 <script setup>
@@ -73,14 +76,14 @@ const fetchMyClass = async () => {
 };
 
 // 获取所有上课班级
-const fetchAllClass = () =>{
+const fetchAllClass = () => {
 
 }
 
 const updateData = () => {
     if (userStore.isTeacher)
         fetchMyClass()
-    else{
+    else if(userStore.isAdmin) {
         fetchAllClass()
     }
 }
@@ -91,9 +94,6 @@ onMounted(() => {
 })
 
 
-const handleEdit = (row) => {
-
-}
 
 
 const router = useRouter()
@@ -104,6 +104,69 @@ const handleDetail = (row) => {
             scourse_id: row.scourse_id
         }
     })
+}
+
+
+// 以下是调课
+
+
+// 以下是编辑和添加部分
+const handleAdjust = (row) => {
+    dialogVisible.value = true
+    form.value = row
+};
+const dialogVisible = ref(false)
+const formFields = ref([
+    { label: '选课号', prop: "scourse_id", type: 'el-input', disabled: true },
+    { label: '课程名', prop: "course_id", type: 'el-input', disabled: true },
+    {
+        label: "调课原因",
+        prop: "reason",
+        type: "el-input",
+    }, {
+        label: "调课说明",
+        prop: 'detail',
+        type: 'el-input'
+    }
+])
+
+
+const emptyForm = ref({ // 空表 用来恢复form
+    enrollment_id: '',
+    score: "",
+})
+
+const form = ref({
+    enrollment_id: '',
+    score: "",
+})
+
+const rules = ref({
+    reason: [{ required: true, message: "调课原因不能为空", trigger: "blur" }],
+    detail: [{ required: true, message: "调课说明不能为空", trigger: "blur" }],
+});
+
+const handleSubmit = (form) => {
+    createScheduleChange(form)
+}
+
+
+const createScheduleChange = async (form) => {
+    let {scourse_id, reason, detail} = form
+    let teacher_id = userStore.userInfo.teacher_id
+    await proxy.$api.createScheduleChange({scourse_id,teacher_id, reason,detail})
+
+
+
+}
+
+const updateVisible = (v) => {
+    dialogVisible.value = v
+}
+
+const closeDialog = () => {
+    dialogVisible.value = false
+    form.value = { ...emptyForm.value }
 }
 
 </script>

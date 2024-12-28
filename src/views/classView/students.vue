@@ -122,11 +122,25 @@ const form = ref({
 })
 
 const rules = ref({
-    score: [{ required: true, message: "成绩不能为空", trigger: "blur" }],
+    score: [
+        { required: true, message: "成绩不能为空", trigger: "blur" },
+        {
+            validator: (rule, value, callback) => {
+                if (value === "" || value === null || value === undefined) {
+                    callback(new Error("成绩不能为空"));
+                } else if (value <= 0 || value > 100) {
+                    callback(new Error("成绩必须大于 0 且小于等于 100"));
+                } else {
+                    callback(); // 验证通过
+                }
+            },
+            trigger: "blur"
+        }
+    ],
 });
 
 const handleSubmit = (form) => {
-     updateScore(form)
+    updateScore(form)
 }
 
 

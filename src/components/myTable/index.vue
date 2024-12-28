@@ -8,7 +8,7 @@
                         <input type="checkbox" @change="toggleSelectAll" v-model="selectAll">
                     </th>
                     <th v-for="column in columns" :key="column.key">{{ column.label }}</th>
-                    <th v-if="editable || deletable || isStudent || isTeacher">操作</th>
+                    <th v-if="editable || deletable || isChange || isDetail || isChoose || isCancel || isApprove || isReject">操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -17,18 +17,20 @@
                         <input type="checkbox" v-model="selectedItems" :value="row">
                     </td>
                     <td v-for="column in columns" :key="column.key">{{ row[column.key] }}</td>
-                    <td v-if="editable || deletable || isStudent || isTeacher" >
+                    <td v-if="editable || deletable || isChoose || isChange || isDetail || isCancel || isApprove || isReject" >
                         <button v-if="editable" class="btn btn-warning me-2" @click="$emit('edit', row)">
                             编辑
                         </button>
-                        <button v-if="isStudent && !isCancel " class="btn me-2"
+
+                        <button v-if="isStudent && !isCancel" class="btn me-2"
                             :class="{ 'btn-light': isChosen[row.scourse_id], 'btn-info': !isChosen[row.scourse_id] }"
                             :disabled="isChosen[row.scourse_id]" @click="$emit('choose', row)">{{
                                 isChosen[row.scourse_id] ?
                                     "已选" : "选课" }}</button>
-                        <button v-if="isTeacher" class="btn btn-info me-2" @click="$emit('adjust', row)">调课</button>
-                        <button v-if="isDetail" class="btn btn-light me-2"
-                            @click="$emit('detail', row)">查看</button>
+                        <button v-if="isChange" class="btn btn-info me-2" @click="$emit('adjust', row)">调课</button>
+                        <button v-if="isDetail" class="btn btn-light me-2" @click="$emit('detail', row)">查看</button>
+                        <button v-if="isApprove && row.status == '申请中'" class="btn btn-success me-2" @click="$emit('approve', row)">同意</button>
+                        <button v-if="isReject && row.status == '申请中'" class="btn btn-warning me-2" @click="$emit('reject', row)">拒绝</button>
                         <template v-if="deletable">
                             <el-popconfirm title="确定删除?" @confirm="$emit('delete', row)">
                                 <template #reference>
@@ -38,7 +40,6 @@
                                 </template>
                             </el-popconfirm>
                         </template>
-
                         <template v-if="isStudent && isCancel && row.grade == 0">
                             <el-popconfirm title="该操作不可逆，确定退选?" @confirm="$emit('cancelCourse', row)">
                                 <template #reference>
@@ -46,19 +47,17 @@
                                 </template>
                             </el-popconfirm>
                         </template>
-
                     </td>
                 </tr>
             </tbody>
         </table>
 
         <!-- 删除按钮和分页器 -->
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center" v-if="isPage">
             <template v-if="selectable && deletable">
                 <el-popconfirm title="确定删除当前选中的课程?" @confirm="deleteSelected">
                     <template #reference>
-                        <button  class="btn btn-danger"
-                            :disabled="selectedItems.length === 0">
+                        <button class="btn btn-danger" :disabled="selectedItems.length === 0">
                             删除所有选中
                         </button>
                     </template>
@@ -129,7 +128,27 @@ const props = defineProps({
         type: Object,
         default: {},
     },
-    isDetail:{
+    isDetail: {
+        type: Boolean,
+        default: false,
+    },
+    isChange: {
+        type: Boolean,
+        default: false,
+    },
+    isChoose: {
+        type: Boolean,
+        default: false,
+    },
+    isPage: {
+        type: Boolean,
+        default: true,
+    },
+    isApprove: {
+        type: Boolean,
+        default: false,
+    },
+    isReject: {
         type: Boolean,
         default: false,
     },
@@ -159,7 +178,7 @@ const toggleSelectAll = () => {
     }
 };
 
-const emit = defineEmits(['delete-selected', 'edit', 'delete', 'change-page', 'choose', 'adjust', 'detail'])
+const emit = defineEmits(['delete-selected', 'edit', 'delete', 'change-page', 'choose', 'adjust', 'detail','approve','reject'])
 const deleteSelected = () => {
     emit("delete-selected", selectedItems.value);
     selectedItems.value = [];

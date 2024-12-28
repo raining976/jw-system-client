@@ -15,7 +15,7 @@
     <div>
         <myTable :data="courses" :columns="columns" :current-page="currentPage" :total-pages="totalPages"
             @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" selectable editable deletable
-            @delete-selected="handleDeleteSelected" />
+            @delete-selected="handleDeleteSelected"  />
     </div>
     <common-form-dialog v-model:visible="dialogVisible" title="课程信息" :fields="formFields" :modelValue="form"
         :isEdit="isEdit" @submit="handleSubmit" @update:visible="updateVisible" @close="closeDialog" :rules="rules" />

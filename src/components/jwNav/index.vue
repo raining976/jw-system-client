@@ -1,6 +1,8 @@
 <template>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
+       
         <div class="container-fluid" v-show="isShow">
+            <input id="otherInput" style="position: absolute; top: -9999px;">
             <router-link to="/" class="navbar-brand">教务系统</router-link>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,9 +54,9 @@ const navList = ref([
         roles: ['student']
     },
     {
-        name: userStore.isAdmin ? '所有班级' : '我的班级' , // 对老师，当前选择他班级的学生，对学生不显示
+        name:  '我的班级' , // 对老师，当前选择他班级的学生，对学生不显示
         url: '/class',
-        roles: ['teacher', 'admin']
+        roles: ['teacher']
     },
     {
         name: '个人信息', // 都显示

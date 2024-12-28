@@ -58,7 +58,7 @@
     <div>
         <myTable :data="scourses" :columns="columns" :current-page="currentPage" :total-pages="totalPages"
             @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" @choose="handleChoose"
-            :selectable="userStore.isAdmin" :editable="false" :isStudent="userStore.isStudent"
+            :selectable="userStore.isAdmin" :editable="false" :isStudent="userStore.isStudent" :isChoose="userStore.isStudent"
             :deletable="userStore.isAdmin" @delete-selected="handleDeleteSelected" :isChosen="isChosen" />
     </div>
 
