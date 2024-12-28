@@ -31,6 +31,9 @@ export const useUserStore = defineStore({
         isStudent(){
             return this.accountInfo.role == 'student'
         },
+        isTeacher(){
+            return this.accountInfo.role == 'teacher'
+        },
         userInfo() {
             if (this.accountInfo.role == 'student') {
                 return this.studentInfo

@@ -9,14 +9,13 @@
         </div>
     </div>
     <myTable :data="tableData" :columns="columns" :current-page="currentPage" :total-pages="totalPages"
-        @change-page="handlePageChange" :selectable="userStore.isAdmin"
-        :isStudent="userStore.isStudent" :isCancel="true" :editable="userStore.isAdmin" :deletable="userStore.isAdmin"
-        @delete-selected="handleDeleteSelected"  @cancelCourse="handleCancelCourse"/>
+        @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" :selectable="userStore.isAdmin"
+        :isTeacher="userStore.isTeacher" :editable="userStore.isAdmin" :deletable="userStore.isAdmin"
+        @delete-selected="handleDeleteSelected" @detail="handleDetail" :isDetail="true" />
 </template>
 
 <script setup>
-import { useUserStore } from "@/store"
-
+import { useUserStore } from '@/store';
 const userStore = useUserStore()
 
 // 搜索条件
@@ -25,11 +24,10 @@ const tableData = ref([]);
 
 const columns = ref([
     { key: "scourse_id", label: "选课号" },
+    { key: 'course_id', label: "课程号" },
     { key: "course_name", label: "课程名称" },
-    { key: 'teacher_name', label: '上课老师' },
     { key: "day", label: "上课天" },
     { key: "time", label: "上课时间" },
-    { key: "grade", label: "成绩" },
 ]);
 
 
@@ -63,14 +61,28 @@ const fetchMyClass = async () => {
         pageNum: currentPage.value,
         keyword: searchValue.value
     }
-    await proxy.$api.findMyCourse(form).then(res => {
-        console.log('res.data',res.data)
-        tableData.value = res.data.data
+    await proxy.$api.findTeacherClass(form).then(res => {
+        if (res.code == 20000) {
+            tableData.value = res.data.data
+            totalPages.value = Math.ceil(res.data.total / pageSize.value)
+        } else {
+            errorNotice(res.msg)
+        }
+
     })
 };
 
+// 获取所有上课班级
+const fetchAllClass = () =>{
+
+}
+
 const updateData = () => {
-    fetchMyClass()
+    if (userStore.isTeacher)
+        fetchMyClass()
+    else{
+        fetchAllClass()
+    }
 }
 
 
@@ -79,11 +91,19 @@ onMounted(() => {
 })
 
 
+const handleEdit = (row) => {
 
-const handleCancelCourse = async(row) =>{
-    await proxy.$api.cancelCourse({enrollment_id: row.enrollment_id})
-    updateData()
+}
 
+
+const router = useRouter()
+const handleDetail = (row) => {
+    router.push({
+        path: '/classStudents',
+        query: {
+            scourse_id: row.scourse_id
+        }
+    })
 }
 
 </script>

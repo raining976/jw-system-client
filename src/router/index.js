@@ -30,12 +30,35 @@ const routes = [
         }
     },
     {
-        path: '/myClass',
+        path: '/class',
+        redirect:'/myClass',
         component: () => import('@/views/ClassView/index.vue'),
         meta: {
             requireAuth: true,
             title: "我的班级"
-        }
+        },
+        children: [
+            { 
+                path: '/myClass', 
+                component: () => import('@/views/ClassView/class.vue'),
+                meta: {
+                    requireAuth: true,
+                    title: "班级学生"
+                },
+
+            },
+            { 
+                path: '/classStudents', 
+                component: () => import('@/views/ClassView/students.vue'),
+                meta: {
+                    requireAuth: true,
+                    title: "班级学生"
+                },
+
+            }
+
+        ]
+
     },
     {
         path: '/myInfo',

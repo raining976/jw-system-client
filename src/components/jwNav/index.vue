@@ -49,11 +49,11 @@ const navList = ref([
     {
         name: '我的课程', // 对学生：当前选的课和成绩 对老师不显示
         url: '/myCourse',
-        roles: ['student', 'admin']
+        roles: ['student']
     },
     {
-        name: '我的班级', // 对老师，当前选择他班级的学生，对学生不显示
-        url: '/myClass',
+        name: userStore.isAdmin ? '所有班级' : '我的班级' , // 对老师，当前选择他班级的学生，对学生不显示
+        url: '/class',
         roles: ['teacher', 'admin']
     },
     {

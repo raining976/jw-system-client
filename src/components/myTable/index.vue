@@ -8,7 +8,7 @@
                         <input type="checkbox" @change="toggleSelectAll" v-model="selectAll">
                     </th>
                     <th v-for="column in columns" :key="column.key">{{ column.label }}</th>
-                    <th v-if="editable || deletable || isStudent">操作</th>
+                    <th v-if="editable || deletable || isStudent || isTeacher">操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -17,18 +17,35 @@
                         <input type="checkbox" v-model="selectedItems" :value="row">
                     </td>
                     <td v-for="column in columns" :key="column.key">{{ row[column.key] }}</td>
-                    <td v-if="editable || deletable || isStudent">
+                    <td v-if="editable || deletable || isStudent || isTeacher" >
                         <button v-if="editable" class="btn btn-warning me-2" @click="$emit('edit', row)">
                             编辑
                         </button>
-                        <button v-if="isStudent" class="btn btn-info me-2" @click="$emit('choose', row)">选课</button>
-                        <el-popconfirm title="确定删除?" @confirm="$emit('delete', row)">
-                            <template #reference>
-                                <button v-if="deletable" class="btn btn-danger">
-                                    删除
-                                </button>
-                            </template>
-                        </el-popconfirm>
+                        <button v-if="isStudent && !isCancel " class="btn me-2"
+                            :class="{ 'btn-light': isChosen[row.scourse_id], 'btn-info': !isChosen[row.scourse_id] }"
+                            :disabled="isChosen[row.scourse_id]" @click="$emit('choose', row)">{{
+                                isChosen[row.scourse_id] ?
+                                    "已选" : "选课" }}</button>
+                        <button v-if="isTeacher" class="btn btn-info me-2" @click="$emit('adjust', row)">调课</button>
+                        <button v-if="isDetail" class="btn btn-light me-2"
+                            @click="$emit('detail', row)">查看</button>
+                        <template v-if="deletable">
+                            <el-popconfirm title="确定删除?" @confirm="$emit('delete', row)">
+                                <template #reference>
+                                    <button class="btn btn-danger">
+                                        删除
+                                    </button>
+                                </template>
+                            </el-popconfirm>
+                        </template>
+
+                        <template v-if="isStudent && isCancel && row.grade == 0">
+                            <el-popconfirm title="该操作不可逆，确定退选?" @confirm="$emit('cancelCourse', row)">
+                                <template #reference>
+                                    <button class="btn btn-secondary me-2">退选</button>
+                                </template>
+                            </el-popconfirm>
+                        </template>
 
                     </td>
                 </tr>
@@ -37,15 +54,17 @@
 
         <!-- 删除按钮和分页器 -->
         <div class="d-flex justify-content-between align-items-center">
+            <template v-if="selectable && deletable">
+                <el-popconfirm title="确定删除当前选中的课程?" @confirm="deleteSelected">
+                    <template #reference>
+                        <button  class="btn btn-danger"
+                            :disabled="selectedItems.length === 0">
+                            删除所有选中
+                        </button>
+                    </template>
+                </el-popconfirm>
+            </template>
 
-            <el-popconfirm title="确定删除当前选中的课程?" @confirm="deleteSelected">
-                <template #reference>
-                    <button v-if="selectable && deletable" class="btn btn-danger"
-                        :disabled="selectedItems.length === 0">
-                        删除所有选中
-                    </button>
-                </template>
-            </el-popconfirm>
             <!-- 分页器 -->
             <nav aria-label="Page navigation">
                 <ul class="pagination">
@@ -98,6 +117,22 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    isTeacher: {
+        type: Boolean,
+        default: false,
+    },
+    isCancel: {
+        type: Boolean,
+        default: false,
+    },
+    isChosen: {
+        type: Object,
+        default: {},
+    },
+    isDetail:{
+        type: Boolean,
+        default: false,
+    },
     deletable: {
         type: Boolean,
         default: false,
@@ -124,7 +159,7 @@ const toggleSelectAll = () => {
     }
 };
 
-const emit = defineEmits(['delete-selected', 'edit', 'delete', 'change-page', 'choose'])
+const emit = defineEmits(['delete-selected', 'edit', 'delete', 'change-page', 'choose', 'adjust', 'detail'])
 const deleteSelected = () => {
     emit("delete-selected", selectedItems.value);
     selectedItems.value = [];

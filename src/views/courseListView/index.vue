@@ -32,7 +32,7 @@ import { useUserStore } from "@/store"
 
 const userStore = useUserStore()
 
-userStore.userInfo
+
 
 // 搜索条件
 const searchValue = ref('')

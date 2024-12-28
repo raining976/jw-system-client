@@ -4,9 +4,9 @@
         <div class="d-flex">
             <!-- 课程名搜索 -->
             <input type="text" class="form-control me-2" placeholder="模糊搜索" v-model="searchValue"
-                @keydown.enter="fetchSCourses">
+                @keydown.enter="updateData()">
             <!-- 搜索按钮 -->
-            <button class="btn btn-primary" style="width: 120px;" @click="fetchSCourses">搜索</button>
+            <button class="btn btn-primary" style="width: 120px;" @click="updateData()">搜索</button>
         </div>
 
     </div>
@@ -20,7 +20,7 @@
         <!-- 选择老师 -->
         <div class="container mt-3">
             <el-autocomplete v-model="teacher_name" :fetch-suggestions="teacherSearchAsync" placeholder="输入老师搜索"
-                @select="selectTeachers" value-key="name" />
+                @select="selectTeachers" value-key="teacher_name" />
         </div>
 
         <!-- 选择上课天 -->
@@ -50,16 +50,16 @@
             </div>
         </div>
         <div class="container mt-3" style="width: 120px;">
-            <button type="button" class="btn btn-primary" 
-                @click="createSCourse">
+            <button type="button" class="btn btn-primary" @click="createSCourse">
                 添加选课
             </button>
         </div>
     </div>
     <div>
         <myTable :data="scourses" :columns="columns" :current-page="currentPage" :total-pages="totalPages"
-            @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" @choose="handleChoose" :selectable="userStore.isAdmin"
-            :editable="false" :isStudent="userStore.isStudent" :deletable="userStore.isAdmin" @delete-selected="handleDeleteSelected" />
+            @change-page="handlePageChange" @edit="handleEdit" @delete="handleDelete" @choose="handleChoose"
+            :selectable="userStore.isAdmin" :editable="false" :isStudent="userStore.isStudent"
+            :deletable="userStore.isAdmin" @delete-selected="handleDeleteSelected" :isChosen="isChosen" />
     </div>
 
 </template>
@@ -72,9 +72,7 @@ import { useUserStore } from "@/store";
 const userStore = useUserStore()
 const { proxy } = getCurrentInstance()
 
-// 模拟后端数据（课程和老师）
-const courses = ref([]);
-const teachers = ref([]);
+
 // 添加选课的选项
 const createForm = ref({
     course_id: '',
@@ -92,7 +90,6 @@ const selectCourses = (v) => {
 
 const selectTeachers = (v) => {
     createForm.value.teacher_id = v.teacher_id
-
 }
 
 const courseSearchAsync = (queryString, cb) => {
@@ -106,18 +103,15 @@ const courseSearchAsync = (queryString, cb) => {
 }
 
 const teacherSearchAsync = (queryString, cb) => {
-    proxy.$api.getUserAll({ role: 'teacher', keyword: queryString }).then(res => {
-        console.log('res', res)
+    proxy.$api.findTeacher({ keyword: queryString }).then(res => {
         if (res.code == 20000) {
             cb(res.data.data)
         }
     }).catch(e => {
+        console.log('e', e)
         cb([])
     })
 }
-
-
-
 
 
 
@@ -139,7 +133,7 @@ const columns = ref([
 
 const handleDelete = async (row) => {
     await proxy.$api.deleteSCourses({ ids: [row.scourse_id] })
-    fetchSCourses()
+    updateData()
 };
 
 const handleEdit = (row) => {
@@ -149,7 +143,7 @@ const handleEdit = (row) => {
 const handleDeleteSelected = async (selectedItems) => {
     const ids = selectedItems.map((item) => item.scourse_id);
     await proxy.$api.deleteSCourses({ ids })
-    fetchSCourses()
+    updateData()
 };
 
 
@@ -159,7 +153,7 @@ const totalPages = ref(1); // 从后端获取的总页数
 const handlePageChange = (page) => {
     if (page < 1 || page > totalPages.value) return;
     currentPage.value = page;
-    fetchSCourses(); // 调用后端接口获取数据
+    updateData()
 };
 const pageSize = ref(8)
 
@@ -186,31 +180,42 @@ const createSCourse = async () => {
     const isFormValid = Object.values(createForm.value).every(value => value !== '');
     if (isFormValid) {
         await proxy.$api.createSCourse(createForm.value)
-        fetchSCourses()
+        updateData()
     }
 }
 
 onMounted(() => {
-    fetchSCourses()
-    // 模拟请求课程数据
-    courses.value = [
-        { id: 1, name: '数学' },
-        { id: 2, name: '英语' },
-        { id: 3, name: '物理' }
-    ];
-
-    // 模拟请求老师数据
-    teachers.value = [
-        { id: 1, name: '张老师' },
-        { id: 2, name: '李老师' },
-        { id: 3, name: '王老师' }
-    ];
+    updateData()
 })
 
 // 学生选课
-const handleChoose = (row) =>{
-    alert(row.course_name, row.teacher_name)
+const handleChoose = async (row) => {
+    if (userStore.isStudent) {
+        await proxy.$api.chooseCourse({ scourse_id: row.scourse_id })
+        updateData()
+    }
+
 }
+
+const updateData = async () => {
+    await findMyCourse()
+    fetchSCourses()
+
+}
+const isChosen = ref({})
+const myCourses = ref([])
+const findMyCourse = async () => {
+    if (userStore.isStudent) {
+        await proxy.$api.findMyCourse().then(res => {
+            myCourses.value = res.data.data
+
+        })
+        myCourses.value.forEach(item => {
+            isChosen.value[item.scourse_id] = true
+        })
+    }
+}
+
 
 </script>
 
