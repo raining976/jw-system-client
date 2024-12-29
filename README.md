@@ -1,5 +1,17 @@
-# Vue 3 + Vite
+# 这是一个简单的教务系统
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 技术栈
+### 前端
+- vue3 主框架
+- vue-router 路由
+- pinia 状态管理
+- axios ajax请求的库
+- bootstrap5 样式
+- element-plus 样式
+### 后端
+- express 基于node的后端框架
+- sequelize 数据库操作的库 orm
+- jwt 用户鉴权
+- cors 跨域
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+
