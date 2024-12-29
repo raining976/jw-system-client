@@ -191,7 +191,7 @@ onMounted(() => {
 // 学生选课
 const handleChoose = async (row) => {
     if (userStore.isStudent) {
-        await proxy.$api.chooseCourse({ scourse_id: row.scourse_id })
+        await proxy.$api.chooseCourse({ scourse_id: row.scourse_id, course_id : row.course_id })
         updateData()
     }
 
